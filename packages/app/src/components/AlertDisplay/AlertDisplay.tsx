@@ -19,43 +19,20 @@ import PropTypes from 'prop-types';
 import { Snackbar, IconButton } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import { Alert } from '@material-ui/lab';
-import { ErrorApi, ErrorContext } from '@backstage/core';
-
-type SubscriberFunc = (error: Error) => void;
-type Unsubscribe = () => void;
-
-// TODO: figure out where to put implementations of APIs, both inside apps
-// but also in core/separate package.
-export class ErrorDisplayForwarder implements ErrorApi {
-  private readonly subscribers = new Set<SubscriberFunc>();
-
-  post(error: Error, context?: ErrorContext) {
-    if (context?.hidden) {
-      return;
-    }
-
-    this.subscribers.forEach(subscriber => subscriber(error));
-  }
-
-  subscribe(func: SubscriberFunc): Unsubscribe {
-    this.subscribers.add(func);
-
-    return () => {
-      this.subscribers.delete(func);
-    };
-  }
-}
+import { ErrorApiForwarder } from '@backstage/core';
 
 type Props = {
-  forwarder: ErrorDisplayForwarder;
+  forwarder: ErrorApiForwarder;
 };
 
 // TODO: improve on this and promote to a shared component for use by all apps.
-const ErrorDisplay: FC<Props> = ({ forwarder }) => {
+const AlertDisplay: FC<Props> = ({ forwarder }) => {
   const [errors, setErrors] = useState<Array<Error>>([]);
 
   useEffect(() => {
-    return forwarder.subscribe(error => setErrors(errs => errs.concat(error)));
+    return forwarder.subscribe((error: any) =>
+      setErrors(errs => errs.concat(error)),
+    );
   }, [forwarder]);
 
   if (errors.length === 0) {
@@ -85,7 +62,7 @@ const ErrorDisplay: FC<Props> = ({ forwarder }) => {
             <CloseIcon />
           </IconButton>
         }
-        severity="error"
+        severity={forwarder.severity}
       >
         {firstError.toString()}
       </Alert>
@@ -93,8 +70,8 @@ const ErrorDisplay: FC<Props> = ({ forwarder }) => {
   );
 };
 
-ErrorDisplay.propTypes = {
-  forwarder: PropTypes.instanceOf(ErrorDisplayForwarder).isRequired,
+AlertDisplay.propTypes = {
+  forwarder: PropTypes.instanceOf(ErrorApiForwarder).isRequired,
 };
 
-export default ErrorDisplay;
+export default AlertDisplay;

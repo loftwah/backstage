@@ -17,7 +17,8 @@
 import {
   ApiHolder,
   ApiRegistry,
-  errorApiRef,
+  alertApiRef,
+  AlertApiForwarder,
   featureFlagsApiRef,
   FeatureFlags,
 } from '@backstage/core';
@@ -26,13 +27,11 @@ import {
   LighthouseRestApi,
 } from '@backstage/plugin-lighthouse';
 
-import { ErrorDisplayForwarder } from './components/ErrorDisplay/ErrorDisplay';
-
 const builder = ApiRegistry.builder();
 
-export const errorDialogForwarder = new ErrorDisplayForwarder();
+export const alertApiForwarder = new AlertApiForwarder();
 
-builder.add(errorApiRef, errorDialogForwarder);
+builder.add(alertApiRef, alertApiForwarder);
 
 builder.add(featureFlagsApiRef, new FeatureFlags());
 

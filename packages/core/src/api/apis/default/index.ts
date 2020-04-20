@@ -14,4 +14,11 @@
  * limitations under the License.
  */
 
-export { default } from './ErrorDisplay';
+// This folder contains definitions for all core APIs.
+//
+// Plugins should rely on these APIs for functionality as much as possible.
+//
+// If you think some API definition is missing, please open an Issue or send a PR!
+
+export * from './AlertApiForwarder';
+export * from './ErrorApiForwarder';
